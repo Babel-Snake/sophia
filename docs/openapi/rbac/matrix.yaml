@@ -1,0 +1,110 @@
+# RBAC matrix for Sophia MVP
+# Source of truth for route → role permissions.
+# Roles: admin (platform), supervisor (hub/parent), mentor (teacher/tutor), student, public (unauthenticated)
+# Notes:
+# - Authorization stacks with org scope checks; users must belong to the org in context.
+# - Paywall is enforced separately by middleware `requireSubscription(feature)` on marked routes.
+
+version: 1
+
+roles:
+  - admin
+  - supervisor
+  - mentor
+  - student
+  - public
+
+# Optional feature flags used by paywall middleware
+features:
+  planning: true
+  evidence: true
+  quizzes: true
+  reports: true
+
+# Default policy if no rule matches (deny-by-default)
+default: deny
+
+authorization:
+  # -----------------
+  # System/Health
+  # -----------------
+  - route: GET /health
+    allow: [ public, student, mentor, supervisor, admin ]
+
+  # -----------------
+  # Planning
+  # -----------------
+  - route: POST /plans/generate
+    feature: planning
+    allow: [ student, mentor, supervisor, admin ]
+  - route: GET /plans/:id
+    allow: [ student, mentor, supervisor, admin ]
+  - route: PATCH /plans/:id/slot/:slotId
+    allow: [ student, mentor, supervisor, admin ]
+
+  # -----------------
+  # Tasks & Submissions
+  # -----------------
+  - route: POST /tasks/instances
+    allow: [ mentor, supervisor, admin ]
+  - route: PUT /tasks/instances/:id/rubric
+    allow: [ mentor, supervisor, admin ]
+  - route: POST /tasks/instances/:id/rubric/lock
+    allow: [ mentor, supervisor, admin ]
+  - route: POST /tasks/instances/:id/submissions
+    allow: [ student, mentor, supervisor, admin ]
+
+  # -----------------
+  # Evidence
+  # -----------------
+  - route: POST /evidence/signed-url
+    feature: evidence
+    allow: [ student, mentor, supervisor, admin ]
+  - route: POST /evidence
+    feature: evidence
+    allow: [ student, mentor, supervisor, admin ]
+  - route: GET /submissions/:id/evidence
+    feature: evidence
+    allow: [ student, mentor, supervisor, admin ]
+
+  # -----------------
+  # Quizzes (Retention)
+  # -----------------
+  - route: POST /quizzes/generate
+    feature: quizzes
+    allow: [ student, mentor, supervisor, admin ]
+  - route: GET /quizzes/:id
+    feature: quizzes
+    allow: [ student, mentor, supervisor, admin ]
+  - route: POST /quizzes/:id/submit
+    feature: quizzes
+    allow: [ student, mentor, supervisor, admin ]
+
+  # -----------------
+  # Reports
+  # -----------------
+  - route: POST /reports/run
+    feature: reports
+    allow: [ mentor, supervisor, admin ]
+
+  # -----------------
+  # Onboarding
+  # -----------------
+  - route: POST /onboarding/start
+    allow: [ public, supervisor, admin ]
+  - route: GET /onboarding/:id
+    allow: [ student, mentor, supervisor, admin ]
+
+  # -----------------
+  # Nudges
+  # -----------------
+  - route: GET /nudges
+    allow: [ student, mentor, supervisor, admin ]
+  - route: POST /admin/nudges/run
+    allow: [ supervisor, admin ]
+
+# Implementation notes
+# - Route matching is method + path (colon params `:id`, `:slotId`).
+# - `feature:` keys are read by paywall middleware to require an active subscription for that org.
+# - Controllers must still enforce org-scoped access (e.g., only members of the org can read that plan).
+# - Admin bypasses paywall by policy, but prefer checking subscription unless truly global admin.

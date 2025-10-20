@@ -1,0 +1,630 @@
+openapi: 3.1.0
+info:
+  title: Sophia API
+  version: 0.1.0
+  description: |
+    API for Sophia MVP — Plan → Do → Prove.
+    Auth is Firebase JWT in production or mock JWT in tests. UUID v4 IDs.
+servers:
+  - url: http://localhost:3000
+    description: Local dev
+security:
+  - bearerAuth: []
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      tags: [System]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+
+  /plans/generate:
+    post:
+      summary: Generate a weekly plan from targets/constraints
+      tags: [Planning]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GeneratePlanBody'
+      responses:
+        '200':
+          description: Plan created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plan'
+  /plans/{id}:
+    get:
+      summary: Get a plan by id
+      tags: [Planning]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Plan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plan'
+  /plans/{id}/slot/{slotId}:
+    patch:
+      summary: Update a plan slot status or timing
+      tags: [Planning]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+        - name: slotId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSlotBody'
+      responses:
+        '200':
+          description: Updated plan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plan'
+
+  /tasks/instances:
+    post:
+      summary: Create a task instance (optionally creates ad‑hoc task)
+      tags: [Tasks]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTaskInstanceBody'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskInstance'
+  /tasks/instances/{id}/rubric:
+    put:
+      summary: Set or replace rubric for a task instance
+      tags: [Tasks]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RubricBody'
+      responses:
+        '200':
+          description: Rubric set
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rubric'
+  /tasks/instances/{id}/rubric/lock:
+    post:
+      summary: Lock rubric for a task instance (immutable)
+      tags: [Tasks]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Locked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  locked_at: { type: string, format: date-time }
+        '409':
+          description: Already locked
+
+  /tasks/instances/{id}/submissions:
+    post:
+      summary: Create a submission record for a task instance
+      tags: [Submissions]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Submission'
+
+  /evidence/signed-url:
+    post:
+      summary: Request a presigned PUT URL for uploading evidence
+      tags: [Evidence]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PresignUploadBody'
+      responses:
+        '200':
+          description: Presigned URL and object key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PresignUploadResponse'
+  /evidence:
+    post:
+      summary: Finalize evidence metadata after upload
+      tags: [Evidence]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEvidenceBody'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Evidence'
+  /submissions/{id}/evidence:
+    get:
+      summary: List evidence for a submission (with signed GET URLs)
+      tags: [Evidence]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Evidence list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Evidence'
+
+  /quizzes/generate:
+    post:
+      summary: Generate a short review quiz based on recent outcomes
+      tags: [Quizzes]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateQuizBody'
+      responses:
+        '201':
+          description: Quiz created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quiz'
+  /quizzes/{id}:
+    get:
+      summary: Get quiz items
+      tags: [Quizzes]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Quiz
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quiz'
+  /quizzes/{id}/submit:
+    post:
+      summary: Submit answers and return scored results + retention index
+      tags: [Quizzes]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitQuizBody'
+      responses:
+        '200':
+          description: Scored results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuizResult'
+
+  /reports/run:
+    post:
+      summary: Run a report and return an artifact URL (HTML or PDF)
+      tags: [Reports]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunReportBody'
+      responses:
+        '202':
+          description: Report started/completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportArtifact'
+
+  /onboarding/start:
+    post:
+      summary: Create org + supervisor + student, seed first plan + baseline quiz
+      tags: [Onboarding]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartOnboardingBody'
+      responses:
+        '201':
+          description: Onboarding info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OnboardingStartResponse'
+  /onboarding/{id}:
+    get:
+      summary: Get onboarding status
+      tags: [Onboarding]
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OnboardingStatus'
+
+  /nudges:
+    get:
+      summary: List nudges for current student
+      tags: [Nudges]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Nudges
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Nudge' }
+  /admin/nudges/run:
+    post:
+      summary: Trigger nudge job (test-only/admin)
+      tags: [Nudges]
+      security:
+        - bearerAuth: []
+      responses:
+        '200': { description: OK }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    IdParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    UUID:
+      type: string
+      format: uuid
+
+    GeneratePlanBody:
+      type: object
+      required: [org_id, student_user_id, week_start, targets]
+      properties:
+        org_id: { $ref: '#/components/schemas/UUID' }
+        student_user_id: { $ref: '#/components/schemas/UUID' }
+        week_start: { type: string, format: date }
+        include_review: { type: boolean, default: true }
+        targets:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              minutes: { type: integer, minimum: 0 }
+        constraints:
+          type: object
+          properties:
+            days:
+              type: array
+              items: { type: string, enum: [Mon, Tue, Wed, Thu, Fri, Sat, Sun] }
+            day_caps:
+              type: object
+              additionalProperties: { type: integer }
+    Plan:
+      type: object
+      required: [id, org_id, student_user_id, week_start, slots, coverage]
+      properties:
+        id: { $ref: '#/components/schemas/UUID' }
+        org_id: { $ref: '#/components/schemas/UUID' }
+        student_user_id: { $ref: '#/components/schemas/UUID' }
+        week_start: { type: string, format: date }
+        slots:
+          type: array
+          items:
+            type: object
+            required: [id, starts_at, ends_at, subject]
+            properties:
+              id: { $ref: '#/components/schemas/UUID' }
+              starts_at: { type: string, format: date-time }
+              ends_at: { type: string, format: date-time }
+              subject: { type: string }
+              task_id: { $ref: '#/components/schemas/UUID' }
+              outcomes:
+                type: array
+                items: { type: string }
+              status:
+                type: string
+                enum: [planned, done, skipped, moved, replaced]
+        coverage:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              minutes:
+                type: object
+                properties:
+                  planned: { type: integer }
+                  done: { type: integer }
+                  pct: { type: number }
+    UpdateSlotBody:
+      type: object
+      properties:
+        status: { type: string, enum: [planned, done, skipped, moved, replaced] }
+        starts_at: { type: string, format: date-time }
+        ends_at: { type: string, format: date-time }
+
+    CreateTaskInstanceBody:
+      type: object
+      required: [org_id, student_user_id, title]
+      properties:
+        org_id: { $ref: '#/components/schemas/UUID' }
+        student_user_id: { $ref: '#/components/schemas/UUID' }
+        task_id: { $ref: '#/components/schemas/UUID' }
+        title: { type: string }
+        description: { type: string }
+    TaskInstance:
+      type: object
+      required: [id, task_id, org_id, student_user_id, status]
+      properties:
+        id: { $ref: '#/components/schemas/UUID' }
+        task_id: { $ref: '#/components/schemas/UUID' }
+        org_id: { $ref: '#/components/schemas/UUID' }
+        student_user_id: { $ref: '#/components/schemas/UUID' }
+        status: { type: string, enum: [assigned, in_progress, submitted, done] }
+
+    RubricBody:
+      type: object
+      required: [criteria]
+      properties:
+        criteria:
+          type: array
+          items:
+            type: object
+            required: [key, scale]
+            properties:
+              key: { type: string }
+              scale: { type: string }
+              descriptors: { type: array, items: { type: string } }
+    Rubric:
+      type: object
+      properties:
+        locked_at: { type: string, format: date-time }
+        criteria: { $ref: '#/components/schemas/RubricBody/properties/criteria' }
+
+    Submission:
+      type: object
+      required: [id, task_instance_id, org_id, student_user_id, created_at]
+      properties:
+        id: { $ref: '#/components/schemas/UUID' }
+        task_instance_id: { $ref: '#/components/schemas/UUID' }
+        org_id: { $ref: '#/components/schemas/UUID' }
+        student_user_id: { $ref: '#/components/schemas/UUID' }
+        created_at: { type: string, format: date-time }
+
+    PresignUploadBody:
+      type: object
+      required: [submission_id, filename, content_type]
+      properties:
+        submission_id: { $ref: '#/components/schemas/UUID' }
+        filename: { type: string }
+        content_type: { type: string }
+        bytes: { type: integer, minimum: 0 }
+    PresignUploadResponse:
+      type: object
+      required: [upload_url, object_key]
+      properties:
+        upload_url: { type: string }
+        object_key: { type: string }
+        expires_in: { type: integer, description: seconds }
+
+    CreateEvidenceBody:
+      type: object
+      required: [submission_id, type]
+      properties:
+        submission_id: { $ref: '#/components/schemas/UUID' }
+        type: { type: string, enum: [file, url, note] }
+        object_key: { type: string }
+        url: { type: string }
+        content_type: { type: string }
+        bytes: { type: integer }
+    Evidence:
+      type: object
+      required: [id, type, created_at]
+      properties:
+        id: { $ref: '#/components/schemas/UUID' }
+        type: { type: string, enum: [file, url, note] }
+        url: { type: string, description: 'Public URL or signed GET URL' }
+        content_type: { type: string }
+        bytes: { type: integer }
+        created_at: { type: string, format: date-time }
+
+    GenerateQuizBody:
+      type: object
+      required: [org_id, student_user_id, size]
+      properties:
+        org_id: { $ref: '#/components/schemas/UUID' }
+        student_user_id: { $ref: '#/components/schemas/UUID' }
+        from_days: { type: integer, default: 30 }
+        size: { type: integer, minimum: 1, maximum: 10 }
+    Quiz:
+      type: object
+      required: [id, items]
+      properties:
+        id: { $ref: '#/components/schemas/UUID' }
+        items:
+          type: array
+          items:
+            type: object
+            required: [id, outcome_code, stem, item_type]
+            properties:
+              id: { $ref: '#/components/schemas/UUID' }
+              outcome_code: { type: string }
+              stem: { type: string }
+              item_type: { type: string, enum: [mcq, short] }
+              choices: { type: array, items: { type: string } }
+    SubmitQuizBody:
+      type: object
+      required: [responses]
+      properties:
+        responses:
+          type: array
+          items:
+            type: object
+            required: [item_id, response]
+            properties:
+              item_id: { $ref: '#/components/schemas/UUID' }
+              response: { oneOf: [ { type: string }, { type: integer } ] }
+    QuizResult:
+      type: object
+      required: [quiz_id, items, retention_index]
+      properties:
+        quiz_id: { $ref: '#/components/schemas/UUID' }
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              item_id: { $ref: '#/components/schemas/UUID' }
+              score: { type: number }
+              confidence: { type: number }
+        retention_index: { type: number, minimum: 0, maximum: 1 }
+
+    RunReportBody:
+      type: object
+      required: [org_id, template_key]
+      properties:
+        org_id: { $ref: '#/components/schemas/UUID' }
+        template_key: { type: string, example: acara-term-summary }
+        params:
+          type: object
+          additionalProperties: true
+    ReportArtifact:
+      type: object
+      required: [status, artifact_url]
+      properties:
+        status: { type: string, enum: [queued, running, success, failed] }
+        artifact_url: { type: string, description: 'file:// or https:// URL (PDF when enabled)' }
+        completed_at: { type: string, format: date-time }
+
+    StartOnboardingBody:
+      type: object
+      required: [org_name, supervisor_name, student_display_name]
+      properties:
+        org_name: { type: string }
+        supervisor_name: { type: string }
+        student_display_name: { type: string }
+    OnboardingStartResponse:
+      type: object
+      required: [id, org_id, supervisor_user_id, student_user_id]
+      properties:
+        id: { $ref: '#/components/schemas/UUID' }
+        org_id: { $ref: '#/components/schemas/UUID' }
+        supervisor_user_id: { $ref: '#/components/schemas/UUID' }
+        student_user_id: { $ref: '#/components/schemas/UUID' }
+        first_quiz_id: { $ref: '#/components/schemas/UUID' }
+    OnboardingStatus:
+      type: object
+      required: [id, step, next]
+      properties:
+        id: { $ref: '#/components/schemas/UUID' }
+        step: { type: string, enum: [created, seeded, complete] }
+        next:
+          type: array
+          items: { type: string }
+
+    Nudge:
+      type: object
+      required: [id, type, payload_json, created_at]
+      properties:
+        id: { $ref: '#/components/schemas/UUID' }
+        type: { type: string, enum: [low_coverage, missed_slot, low_retention] }
+        payload_json: { type: object, additionalProperties: true }
+        created_at: { type: string, format: date-time }

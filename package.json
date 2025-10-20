@@ -1,0 +1,7 @@
+{
+"jest": {
+"testEnvironment": "node",
+"setupFilesAfterEnv": ["<rootDir>/backend/tests/acceptance/_setup.ts"],
+"testMatch": ["**/backend/tests/acceptance/**/*.spec.ts"]
+}
+}
