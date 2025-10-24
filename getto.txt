@@ -1,0 +1,28 @@
+git remote add origin https://github.com/Babel-Snake/sophia.git
+git push -u origin main
+
+cd /d/Projects/Sophia3
+
+
+Later in GitHub → Settings → Branches → Branch protection, require CI to pass and 1 review before merge.
+
+Protect merges
+
+✅ Require a pull request before merging
+
+Required approvals: 1
+
+(Optional) Require approval of the most recent reviewable push: on
+
+(Optional) Dismiss stale pull request approvals when new commits are pushed: on
+
+(Optional) Require review from Code Owners: off (unless you add CODEOWNERS)
+
+✅ Require status checks to pass before merging
+
+Click Search for status checks in the last week (you must have run CI at least once).
+
+Tick the check named CI (the workflow we added).
+
+(Recommended) Require branches to be up to date before merging: on
+(This forces PRs to rebase/merge main so CI re-runs on the latest main.)

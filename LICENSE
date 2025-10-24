@@ -1,0 +1,56 @@
+Business Source License 1.1
+
+Parameters
+Licensor:           Jacob Smith
+Licensed Work:      “Sophia — Plan→Do→Prove platform (this repository)” (“Licensed Work”)
+Additional Use Grant: None
+Change Date:        2029-10-24
+Change License:     GPL-2.0
+
+Notice
+
+The Business Source License (this document, or the “License”) is not an Open Source license. However, the Licensed Work will eventually be made available under an Open Source License, as stated in this License.
+
+License text copyright © MariaDB plc. MariaDB hereby grants you permission to use this License’s text to license your works, and to refer to it using the trademark “Business Source License”, as long as you comply with the Covenants of Licensor below.
+
+Terms
+
+The Licensor hereby grants you the right to copy, modify, create derivative works, redistribute, and make non-production use of the Licensed Work. The Licensor may make an Additional Use Grant, above, permitting limited production use.
+
+Effective on the Change Date, or the fourth anniversary of the first publicly available distribution of a specific version of the Licensed Work under this License, whichever comes first, the Licensor hereby grants you rights under the terms of the Change License, and the rights granted in the paragraph above terminate.
+
+If your use of the Licensed Work does not comply with the requirements currently in effect as described in this License, you must cease use of the Licensed Work.
+
+Covenants of Licensor
+
+In consideration of the right to use this License’s text and the “Business Source License” name and trademark, Licensor covenants to MariaDB, and to all other recipients of the licensed work to be provided by Licensor:
+1. To specify as the Change License the GPL Version 2.0 or any later version, or a license that is compatible with GPL Version 2.0 or a later version, where “compatible” means that software provided under the Change License can be included in a program with software provided under GPL Version 2.0 or a later version.
+2. To specify a Change Date.
+3. To either: (a) specify an additional grant of rights to use that does not impose any additional restriction on the right granted in this License, as the Additional Use Grant; or (b) insert the text “None”.
+4. Not to modify this License in any other way.
+
+Notice of License
+
+A copy of this License must be included with each copy of the Licensed Work. If you modify the Licensed Work, you must include a prominent notice stating that you have modified the Licensed Work.
+
+Trademarks
+
+This License does not grant any rights to use any Licensor or third party trademarks or logos, except as expressly stated in this License.
+
+DISCLAIMER
+
+LICENSOR HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS, EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND TITLE.
+
+LIMITATION OF LIABILITY
+
+IN NO EVENT WILL LICENSOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES, LOSS OF USE, DATA, OR PROFITS, OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THE LICENSED WORK, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Termination
+
+If you violate the terms of this License, your rights under this License terminate automatically.
+
+Governing Law
+
+This License will be governed by the laws of the jurisdiction specified by the Licensor, if any, or otherwise the laws of the jurisdiction where the Licensor is located, excluding its conflicts of law rules.
+
+End of Terms
