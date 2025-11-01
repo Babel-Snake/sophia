@@ -99,3 +99,4 @@ Do not commit secrets. See SECURITY.md for reporting.
 Credits
 
 © 2025 Jacob Smith. See LICENSE for terms.
+Small test change to verify PR + CI wiring.
