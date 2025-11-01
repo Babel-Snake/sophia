@@ -16,7 +16,7 @@ export const sequelize = new Sequelize({
     min: parseInt(process.env.DB_POOL_MIN || '0', 10),
     max: parseInt(process.env.DB_POOL_MAX || '10', 10),
   },
-  timezone: '+09:30', // Australia/Adelaide
+  timezone: process.env.TZ === 'Australia/Adelaide' ? '+09:30' : '+00:00',
 });
 
 export async function initDb() {

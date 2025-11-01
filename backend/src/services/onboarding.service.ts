@@ -80,8 +80,7 @@ export class OnboardingService {
 
       // 7. Create trial subscription
       const trialDays = parseInt(process.env.TRIAL_DAYS || '14', 10);
-      const trialEndsAt = new Date();
-      trialEndsAt.setDate(trialEndsAt.getDate() + trialDays);
+      const trialEndsAt = new Date(Date.now() + trialDays * 24 * 60 * 60 * 1000);
 
       await sequelize.query(
         'INSERT INTO subscriptions (id, org_id, plan_name, status, trial_ends_at) VALUES (?, ?, ?, ?, ?)',

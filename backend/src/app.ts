@@ -9,7 +9,11 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors({ origin: process.env.CORS_ORIGIN || '*' }));
+const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
+app.use(cors({ 
+  origin: corsOrigin === '*' ? false : corsOrigin,
+  credentials: true 
+}));
 app.use(express.json());
 
 // Request ID middleware (simple version for logging)
