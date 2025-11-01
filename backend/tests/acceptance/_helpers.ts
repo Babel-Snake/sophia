@@ -26,15 +26,15 @@ throw new Error(`Expected 402 Payment Required, got ${res.status} with body: ${J
 }
 
 
-export async function get<T>(req: SuperTest<Test>, url: string, auth?: string) {
+export async function get<T>(req: any, url: string, auth?: string) {
 return req.get(url).set('Authorization', auth ?? '').set('Content-Type', 'application/json');
 }
-export async function post<T>(req: SuperTest<Test>, url: string, body?: any, auth?: string) {
+export async function post<T>(req: any, url: string, body?: any, auth?: string) {
 return req.post(url).set('Authorization', auth ?? '').send(body ?? {});
 }
-export async function put<T>(req: SuperTest<Test>, url: string, body?: any, auth?: string) {
+export async function put<T>(req: any, url: string, body?: any, auth?: string) {
 return req.put(url).set('Authorization', auth ?? '').send(body ?? {});
 }
-export async function patch<T>(req: SuperTest<Test>, url: string, body?: any, auth?: string) {
+export async function patch<T>(req: any, url: string, body?: any, auth?: string) {
 return req.patch(url).set('Authorization', auth ?? '').send(body ?? {});
 }

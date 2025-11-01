@@ -1,7 +1,1 @@
-{
-"jest": {
-"testEnvironment": "node",
-"setupFilesAfterEnv": ["<rootDir>/backend/tests/acceptance/_setup.ts"],
-"testMatch": ["**/backend/tests/acceptance/**/*.spec.ts"]
-}
-}
+{"jest":{"preset":"ts-jest","testEnvironment":"node","setupFilesAfterEnv":["<rootDir>/backend/tests/acceptance/_setup.ts"],"testMatch":["**/backend/tests/acceptance/**/*.spec.ts"],"moduleFileExtensions":["ts","tsx","js","jsx","json"],"transform":{"^.+\\.ts$":"ts-jest"}},"devDependencies":{"@types/jest":"^30.0.0","jest":"^30.2.0","ts-jest":"^29.4.5","typescript":"^5.9.3"}}
